@@ -1,0 +1,9 @@
+WITH counting_numbers AS ( 
+	SELECT 
+  		-- Initialize number
+  		1 AS number
+  	UNION ALL 
+  	SELECT 
+  		-- Increment number by 1
+  		number + 1
+  	FROM counting_numbers
