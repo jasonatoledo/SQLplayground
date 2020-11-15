@@ -1,0 +1,72 @@
+CREATE TABLE employee(
+	empid INT NOT NULL,
+	empname VARCHAR(50),
+	managerid INT,
+	deptid INT,
+	salary INT,
+	DOB DATE
+)
+
+INSERT INTO employee (empid, empname, managerid, deptid, salary, DOB)
+VALUES 
+(3,      'emp 3',      1,       1,       2000,    '1983-11-21'),  
+(13,      'emp 13',      2,       5,       2000,    '1984-03-09'),  
+(11,      'emp 11',      2,       1,       2000,    '1989-07-23'),  
+(9,       'emp 9',       1,       5,       3000,    '1990-09-11'),  
+(8,       'emp 8',       3,       1,       3500,    '1990-05-15'),  
+(7,       'emp 7',       2,       5,       NULL,    NULL),
+(3,       'emp 3',       1,       1,       2000,    '1983-11-21') 
+
+select * from employee
+
+CREATE TABLE department(
+	deptid INT NOT NULL,
+	deptname VARCHAR(50)
+)
+
+INSERT INTO department
+VALUES (1, 'IT'), (2, 'Admin')
+
+SELECT * FROM department
+
+-- inner join departments table
+SELECT COUNT(*) FROM(
+SELECT e.empid, e.empname, d.*
+FROM employee e
+LEFT JOIN department d ON e.deptid = d.deptid) AS CNT
+WHERE deptid IS NULL
+
+-- Find departments not in employee table
+SELECT e.empid, e.empname, e.deptid
+FROM employee e
+LEFT JOIN department d
+ON e.deptid = d.deptid
+WHERE d.deptid IS NULL
+
+--List of employees with same salary
+SELECT DISTINCT e.empid, e.empname, e.salary, e1.empid, e1.empname, e1.salary
+FROM employee e, employee e1
+WHERE e.salary = e1.salary
+AND e.empid != e1.empid
+ORDER BY 3 DESC
+
+--Duplicate Records
+SELECT empid, empname, salary, COUNT(*)
+FROM employee
+GROUP BY 1, 2, 3
+HAVING COUNT(*) > 1
+
+--Rowcount practice
+WITH CTE AS(
+SELECT empid, empname, salary,
+RANK() OVER(PARTITION BY salary ORDER BY empname DESC) AS salary_rank
+FROM employee
+WHERE salary IS NOT NULL)
+SELECT *
+FROM CTE
+WHERE salary_rank = '2'
+
+-- Get employee even number employee IDs
+SELECT *
+FROM employee
+WHERE empid % 2 = 0
