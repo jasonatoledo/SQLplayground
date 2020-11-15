@@ -1,0 +1,75 @@
+-- Get 2nd highest power rating
+SELECT MAX(power)
+FROM cars
+WHERE power < (SELECT MAX(power)
+			  FROM cars)
+
+-- Get 2nd most powerful car by company
+WITH cte AS(
+SELECT name, company, power,
+RANK() OVER(PARTITION BY company ORDER BY power DESC) AS Power_Rank
+FROM cars)
+SELECT *
+FROM cte
+WHERE power_rank = '2'
+ORDER BY power DESC
+
+-- add row number to table
+SELECT name, company, power,
+ROW_NUMBER() OVER(ORDER BY power DESC) AS row_number
+FROM cars
+
+ -- Rank cars power descending
+SELECT name, company, power, ROUND(power/1000,2) AS Liters,
+DENSE_RANK() OVER(ORDER BY power DESC) AS row_number
+FROM cars
+
+SELECT name, company, power
+FROM CARS
+ORDER BY
+	CASE WHEN company = 'Toyota' THEN company
+	ELSE name
+	END DESC
+	
+-- Create case when buckets for power
+SELECT name, company, power, 
+CASE WHEN power >= '5000' THEN 'Powerful'
+WHEN power <= 4999 AND power >= '3000' THEN 'Middle'
+ELSE 'Weak'
+END AS power_rating
+FROM cars
+ORDER BY 3 DESC
+
+-- Create a row number column, then classify as odd numbers
+SELECT * FROM(
+WITH cars_cte AS(
+  SELECT name, company, power,
+  ROW_NUMBER() OVER(ORDER BY power DESC) AS row_number
+  FROM cars)
+SELECT name, company, power, row_number,
+CASE 
+  WHEN row_number % 2 = '0' THEN 'even'
+  ELSE 'odd'
+  END AS even_or_odd
+FROM cars_cte) AS odd_only
+WHERE even_or_odd = 'odd'
+
+SELECT *
+FROM cars
+WHERE company LIKE '_o%'
+
+SELECT c1.name, c1.company, c1.power
+FROM cars c1
+UNION ALL
+SELECT c2.name, c2.company, c2.power
+FROM cars c2
+ORDER BY power DESC
+
+-- get unique count of companies
+SELECT COUNT(DISTINCT(company))
+from cars
+
+-- get unique count of company names
+SELECT DISTINCT company FROM cars
+
+SELECT * FROM cars
