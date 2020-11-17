@@ -1,0 +1,64 @@
+/* Worksheet */
+-- 1A discovery join query
+SELECT *
+FROM recruiting.orders o
+JOIN recruiting.products p ON o.style_id = p.style_id
+
+--1A sum of style_ids purchased on launch dates
+SELECT SUM(o.style_id), o.style_id, p.launch_date /*o.order_channel, o.order_channel_category, o.quantity */
+FROM recruiting.orders o
+JOIN recruiting.products p ON o.style_id = p.style_id
+GROUP BY 2,3
+ORDER BY 1 DESC
+
+--1A get revenue by style ID
+SELECT COUNT(o.style_id) AS number_of_sales, 
+       SUM(o.quantity) * o.price AS total_revenue, 
+       o.price AS product_price, 
+       o.style_id, 
+       p.style AS product_name,
+       p.category,
+       p.launch_date 
+FROM recruiting.orders o
+JOIN recruiting.products p ON o.style_id = p.style_id
+GROUP BY 3,4,5,6,7
+ORDER BY 2 DESC
+
+-- 1A Get revenue by category and aggregate sales
+WITH cte AS(
+SELECT COUNT(o.style_id) AS number_of_sales, 
+       SUM(o.quantity) * o.price AS total_revenue, 
+       o.price AS product_price, 
+       o.style_id, 
+       p.style AS product_name,
+       p.category,
+       p.launch_date 
+FROM recruiting.orders o
+JOIN recruiting.products p ON o.style_id = p.style_id
+GROUP BY 3,4,5,6,7
+ORDER BY 2 DESC)
+SELECT category AS Category, 
+       SUM(total_revenue) AS total_revenue, 
+       SUM(number_of_sales) AS total_unit_sales
+FROM cte
+GROUP BY 1
+ORDER BY 2 DESC
+
+-- Get recent launch performance data with past 180 days vs total launches
+SELECT(SELECT SUM(total_revenue) FROM(
+SELECT COUNT(o.style_id) AS number_of_sales, 
+       SUM(o.quantity) * o.price AS total_revenue, 
+       o.price AS product_price, 
+       o.style_id, 
+       p.style AS product_name,
+       p.category,
+       p.launch_date 
+FROM recruiting.orders o
+JOIN recruiting.products p ON o.style_id = p.style_id
+WHERE p.launch_date >= ('2017-12-30' - 180)
+GROUP BY 3,4,5,6,7
+ORDER BY 2 DESC)) /
+(SELECT SUM(total_revenue) FROM(
+SELECT SUM(o.quantity) * o.price AS total_revenue
+FROM recruiting.orders o
+GROUP BY o.price)) AS last_180_days_launch_performance
