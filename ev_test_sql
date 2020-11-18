@@ -63,3 +63,68 @@ ORDER BY 2 DESC)) /
 SELECT SUM(o.quantity) * o.price AS total_revenue
 FROM recruiting.orders o
 GROUP BY o.price)) AS last_180_days_launch_performance
+
+
+-- Worksheet 1
+-- Check columns in users table
+SELECT * FROM recruiting.users
+--Check count of records in users table
+SELECT COUNT(*) FROM recruiting.users
+
+--Understand discovery_platform distrubution
+SELECT COUNT(discovery_platform), discovery_platform
+FROM recruiting.users
+GROUP BY discovery_platform
+
+--Understand discovery channels & categories
+SELECT discovery_channel, 
+       COUNT(discovery_channel_category) AS user_count, 
+       discovery_channel_category
+FROM recruiting.users
+GROUP BY 1,3
+ORDER BY 2 DESC
+
+--Understand paid users vs other types
+SELECT COUNT(discovery_channel_category) AS users_acquired, 
+       discovery_channel_category
+FROM recruiting.users
+GROUP BY 2
+ORDER BY 1 DESC
+
+-- Create bins by quarter, year, and channel type
+SELECT COUNT(discovery_channel_category) AS user_count,
+       discovery_channel,
+       discovery_channel_category,
+       CASE
+          WHEN discovery_time BETWEEN '2016-01-01' AND '2016-03-31' THEN 'Q1 2016'
+          WHEN discovery_time BETWEEN '2016-04-01' AND '2016-06-30' THEN 'Q2 2016'
+          WHEN discovery_time BETWEEN '2016-07-01' AND '2016-09-30' THEN 'Q3 2016'
+          WHEN discovery_time BETWEEN '2016-10-01' AND '2016-12-31' THEN 'Q4 2016'
+          WHEN discovery_time BETWEEN '2017-01-01' AND '2017-03-31' THEN 'Q1 2017'
+          WHEN discovery_time BETWEEN '2017-04-01' AND '2017-06-30' THEN 'Q2 2017'
+          WHEN discovery_time BETWEEN '2017-07-01' AND '2017-09-30' THEN 'Q3 2017'
+          WHEN discovery_time BETWEEN '2017-10-01' AND '2017-12-31' THEN 'Q4 2017'
+          END AS time_period
+FROM recruiting.users
+GROUP BY 2,3,4
+ORDER BY 1 DESC
+
+-- Year + user count
+WITH counts AS(
+SELECT COUNT(discovery_channel_category) AS user_count,
+       discovery_channel,
+       discovery_channel_category,
+       CASE
+          WHEN discovery_time BETWEEN '2016-01-01' AND '2016-12-31' THEN '2016'
+          WHEN discovery_time BETWEEN '2017-01-01' AND '2017-12-31' THEN '2017'
+          ELSE 'other'
+          END AS year
+FROM recruiting.users
+GROUP BY 2,3,4
+ORDER BY 1 DESC)
+SELECT SUM(user_count), year, discovery_channel, discovery_channel_category
+FROM counts
+GROUP BY 2,3,4
+ORDER BY 1 DESC
+
+
