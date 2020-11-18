@@ -147,3 +147,18 @@ SELECT SUM(price),
        user_id
 FROM user_purchases
 GROUP BY 2,3,4
+
+
+-- ALTERNATE QUERY FOR 3A - DENIM LOVERS
+SELECT * FROM(
+  SELECT o.user_id,
+         RANK() OVER(PARTITION BY o.user_id ORDER BY p.category),
+         p.category,
+         SUM(o.price) AS total_spent
+  FROM recruiting.products p
+  JOIN recruiting.orders o ON p.style_id = o.style_id
+  GROUP BY o.user_id, p.category
+  ORDER BY 1 DESC)
+WHERE rank = '1'
+AND category = 'Denim'
+ORDER BY total_spent DESC
