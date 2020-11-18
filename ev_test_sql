@@ -109,7 +109,7 @@ FROM recruiting.users
 GROUP BY 2,3,4
 ORDER BY 1 DESC
 
--- Year + user count
+-- get year + user count distribution
 WITH counts AS(
 SELECT COUNT(discovery_channel_category) AS user_count,
        discovery_channel,
@@ -122,7 +122,10 @@ SELECT COUNT(discovery_channel_category) AS user_count,
 FROM recruiting.users
 GROUP BY 2,3,4
 ORDER BY 1 DESC)
-SELECT SUM(user_count), year, discovery_channel, discovery_channel_category
+SELECT SUM(user_count) AS User_Count, 
+       year AS Year, 
+       discovery_channel AS Discovery_Channel, 
+       discovery_channel_category AS Discovery_Channel_Category
 FROM counts
 GROUP BY 2,3,4
 ORDER BY 1 DESC
