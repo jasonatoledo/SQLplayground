@@ -1,4 +1,4 @@
-/* Worksheet */
+/* Worksheet 4 */
 -- 1A discovery join query
 SELECT *
 FROM recruiting.orders o
@@ -37,14 +37,15 @@ FROM recruiting.orders o
 JOIN recruiting.products p ON o.style_id = p.style_id
 GROUP BY 3,4,5,6,7
 ORDER BY 2 DESC)
-SELECT category AS Category, 
+SELECT RANK() OVER(ORDER BY SUM(total_revenue) DESC) AS category_sales_rank,
+       category AS Category, 
        SUM(total_revenue) AS total_revenue, 
        SUM(number_of_sales) AS total_unit_sales
 FROM cte
-GROUP BY 1
-ORDER BY 2 DESC
+GROUP BY 2
+ORDER BY 1
 
--- Get recent launch performance data with past 180 days vs total launches
+-- Get recent launch performance percentage for past 180 days vs total launches
 SELECT(SELECT SUM(total_revenue) FROM(
 SELECT COUNT(o.style_id) AS number_of_sales, 
        SUM(o.quantity) * o.price AS total_revenue, 
