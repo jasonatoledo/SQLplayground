@@ -130,4 +130,20 @@ FROM counts
 GROUP BY 2,3,4
 ORDER BY 1 DESC
 
-
+-- WORKSHEET 2
+WITH user_purchases AS(
+SELECT u.discovery_channel, 
+       u.discovery_channel_category,
+       u.user_id,
+       o.order_id,
+       o.quantity,
+       o.price
+FROM recruiting.users u
+LEFT JOIN recruiting.orders o ON u.user_id = o.user_id
+WHERE order_id IS NOT NULL)
+SELECT SUM(price),
+       discovery_channel,
+       discovery_channel_category,
+       user_id
+FROM user_purchases
+GROUP BY 2,3,4
