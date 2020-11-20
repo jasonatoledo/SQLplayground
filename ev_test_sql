@@ -185,3 +185,18 @@ FROM product_lovers
 WHERE ranking = '1'
 AND category IN ('Footwear', 'Sweaters', 'Knit Tops')
 ORDER BY 1
+
+
+-- Understand total user orders
+WITH user_orders AS(
+SELECT u.discovery_channel, 
+       u.discovery_channel_category,
+       u.user_id,
+       COUNT(DISTINCT(o.order_id)) AS total_orders,
+       SUM(o.quantity) total_products_purchased,
+       SUM(o.price) AS total_spent
+FROM recruiting.users u
+LEFT JOIN recruiting.orders o ON u.user_id = o.user_id
+WHERE order_id IS NOT NULL
+GROUP BY 1,2,3
+ORDER BY 4 DESC)
