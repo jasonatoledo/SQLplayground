@@ -24,7 +24,7 @@ JOIN recruiting.products p ON o.style_id = p.style_id
 GROUP BY 3,4,5,6,7
 ORDER BY 2 DESC
 
--- 1A Get revenue by category and aggregate sales
+-- 1A Get revenue rankings by category and aggregate sales by year
 WITH cte AS(
 SELECT COUNT(o.style_id) AS number_of_sales, 
        SUM(o.quantity) * o.price AS total_revenue, 
@@ -37,13 +37,14 @@ FROM recruiting.orders o
 JOIN recruiting.products p ON o.style_id = p.style_id
 GROUP BY 3,4,5,6,7
 ORDER BY 2 DESC)
-SELECT RANK() OVER(ORDER BY SUM(total_revenue) DESC) AS category_sales_rank,
+SELECT RANK() OVER(PARTITION BY DATEPART(YEAR, launch_date) ORDER BY SUM(total_revenue) DESC) AS category_sales_rank,
        category AS Category, 
        SUM(total_revenue) AS total_revenue, 
-       SUM(number_of_sales) AS total_unit_sales
+       SUM(number_of_sales) AS total_unit_sales,
+       DATEPART(YEAR, launch_date) AS year
 FROM cte
-GROUP BY 2
-ORDER BY 1
+GROUP BY 2,5
+ORDER BY 5
 
 -- Get recent launch performance percentage for past 180 days vs total launches
 SELECT(SELECT SUM(total_revenue) FROM(
