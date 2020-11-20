@@ -162,3 +162,26 @@ SELECT * FROM(
 WHERE rank = '1'
 AND category = 'Denim'
 ORDER BY total_spent DESC
+
+
+
+
+-- FINAL PRODUCT LOVERS QUERY!!! WORKING!!!
+WITH product_lovers AS(
+SELECT user_id, 
+       category, 
+       RANK() OVER(PARTITION BY user_id ORDER BY total_spent DESC) AS ranking,
+       total_spent
+FROM(
+  SELECT o.user_id,
+         p.category,
+         SUM(o.price) AS total_spent
+  FROM recruiting.products p
+  JOIN recruiting.orders o ON p.style_id = o.style_id
+  GROUP BY o.user_id, p.category
+  ORDER BY 1 DESC, 3))
+SELECT *  
+FROM product_lovers
+WHERE ranking = '1'
+AND category IN ('Footwear', 'Sweaters', 'Knit Tops')
+ORDER BY 1
